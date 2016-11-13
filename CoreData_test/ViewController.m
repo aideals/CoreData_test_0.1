@@ -158,7 +158,7 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"identifier" forIndexPath:indexPath];
     cell.textLabel.text = students.name;
-    cell.detailTextLabel.text = students.age;
+    cell.detailTextLabel.text = [NSString stringWithFormat:@"student.age"];
     
     return cell;
 }
