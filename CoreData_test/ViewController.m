@@ -87,7 +87,7 @@
     students.name = @"Liu Peng";
 
     NSError *error = nil;
-    if (self.schoolMoc.hasChanges) {
+    if (!self.schoolMoc.hasChanges) {
         [self.schoolMoc save:&error];
         NSLog(@"%@",students);
     }
@@ -113,7 +113,7 @@
     }];
     
   
-    if (self.schoolMoc.hasChanges) {
+    if (!self.schoolMoc.hasChanges) {
         [self.schoolMoc save:nil];
         NSLog(@"%@",students);
     }
@@ -126,6 +126,8 @@
 - (IBAction)changeView:(id)sender
 {
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Students"];
+    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    request.sortDescriptors = @[sort];
     
     NSError *error = nil;
     self.fetchedResultController = [[NSFetchedResultsController alloc] initWithFetchRequest:request managedObjectContext:self.schoolMoc sectionNameKeyPath:@"sectionName" cacheName:nil];
@@ -138,6 +140,7 @@
     }
     
     
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"identifier"];
     [self.tableView reloadData];
     
 }
@@ -163,4 +166,13 @@
     return cell;
 }
 
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
+{
+    [self.tableView beginUpdates];
+}
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
+    [self.tableView endUpdates];
+}
 @end
