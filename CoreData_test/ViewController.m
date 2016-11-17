@@ -11,7 +11,7 @@
 #import "Students.h"
 #import "ClassNumber.h"
 
-@interface ViewController () <NSFetchedResultsControllerDelegate,UITableViewDataSource,UITabBarDelegate>
+@interface ViewController () <NSFetchedResultsControllerDelegate,UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,strong) NSManagedObjectContext *schoolMoc;
 @property (nonatomic,strong) UIButton *add;
 @property (nonatomic,strong) UIButton *delete;
@@ -37,13 +37,14 @@
     [self.delete setTitle:@"Delete" forState:UIControlStateNormal];
     [self.delete addTarget:self action:@selector(deleteEntity:) forControlEvents:UIControlEventTouchDown];
     
-    self.refresh = [[UIButton alloc] initWithFrame:CGRectMake(245, 500, 95, 55)];
-    self.refresh.backgroundColor = [UIColor greenColor];
-    [self.refresh setTitle:@"Refresh" forState:UIControlStateNormal];
+    self.refresh = [[UIButton alloc] initWithFrame:CGRectMake(240, 500, 95, 55)];
+    self.refresh.backgroundColor = [UIColor redColor];
+    [self.refresh setTitle:@"refresh" forState:UIControlStateNormal];
     [self.refresh addTarget:self action:@selector(changeView:) forControlEvents:UIControlEventTouchDown];
     
     self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width,(self.view.bounds.size.height - 55)) style:UITableViewStylePlain];
-                                                                  
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
     
     [self.view addSubview:self.tableView];
     [self.view addSubview:self.refresh];
@@ -80,14 +81,37 @@
     
 }
 
+- (IBAction)changeView:(id)sender
+{
+    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Students"];
+    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
+    request.sortDescriptors = @[sort];
+    
+    
+    NSError *error = nil;
+    self.fetchedResultController = [[NSFetchedResultsController alloc] initWithFetchRequest:request managedObjectContext:self.schoolMoc sectionNameKeyPath:nil cacheName:nil];
+    
+    [self.fetchedResultController performFetch:&error];
+    self.fetchedResultController.delegate = self;
+    
+    if (error) {
+        NSLog(@"tableView change data is error: %@",error);
+    }
+    
+    [self.tableView reloadData];
+}
+
+
+
 - (IBAction)addEntity:(id)sender
 {
     Students *students = [NSEntityDescription insertNewObjectForEntityForName:@"Students" inManagedObjectContext:self.schoolMoc];
     students.age = @(20);
     students.name = @"Liu Peng";
-
+    
+    
     NSError *error = nil;
-    if (!self.schoolMoc.hasChanges) {
+    if (self.schoolMoc.hasChanges) {
         [self.schoolMoc save:&error];
         NSLog(@"%@",students);
     }
@@ -95,7 +119,6 @@
     if (error) {
         NSLog(@"CoreData insert data error:%@",error);
     }
-
 
 }
 
@@ -113,8 +136,8 @@
     }];
     
   
-    if (!self.schoolMoc.hasChanges) {
-        [self.schoolMoc save:nil];
+    if (self.schoolMoc.hasChanges) {
+        [self.schoolMoc save:&error];
         NSLog(@"%@",students);
     }
 
@@ -123,27 +146,6 @@
     }
 }
 
-- (IBAction)changeView:(id)sender
-{
-    NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Students"];
-    NSSortDescriptor *sort = [[NSSortDescriptor alloc] initWithKey:@"name" ascending:YES];
-    request.sortDescriptors = @[sort];
-    
-    NSError *error = nil;
-    self.fetchedResultController = [[NSFetchedResultsController alloc] initWithFetchRequest:request managedObjectContext:self.schoolMoc sectionNameKeyPath:@"sectionName" cacheName:nil];
-    
-    self.fetchedResultController.delegate = self;
-    [self.fetchedResultController performFetch:&error];
-    
-    if (error) {
-        NSLog(@"NSFectchedResultController init fail:%@",error);
-    }
-    
-    
-    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"identifier"];
-    [self.tableView reloadData];
-    
-}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
@@ -159,7 +161,15 @@
 {
     Students *students = [self.fetchedResultController objectAtIndexPath:indexPath];
     
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"identifier" forIndexPath:indexPath];
+    UITableViewCell *cell;
+    static NSString *reuseIdentifier = @"identifier";
+    
+    cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
+    if (!cell) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
+    }
+    
+    
     cell.textLabel.text = students.name;
     cell.detailTextLabel.text = [NSString stringWithFormat:@"student.age"];
     
