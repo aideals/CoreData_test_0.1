@@ -106,7 +106,7 @@
 - (IBAction)addEntity:(id)sender
 {
     Students *students = [NSEntityDescription insertNewObjectForEntityForName:@"Students" inManagedObjectContext:self.schoolMoc];
-    students.age = @(20);
+    students.age = @"20";
     students.name = @"Liu Peng";
     
     
@@ -164,25 +164,17 @@
     UITableViewCell *cell;
     static NSString *reuseIdentifier = @"identifier";
     
-    cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier forIndexPath:indexPath];
+    cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:reuseIdentifier];
     }
     
     
     cell.textLabel.text = students.name;
-    cell.detailTextLabel.text = [NSString stringWithFormat:@"student.age"];
+    cell.detailTextLabel.text = students.age;
     
     return cell;
 }
 
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
-{
-    [self.tableView beginUpdates];
-}
 
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
-{
-    [self.tableView endUpdates];
-}
 @end

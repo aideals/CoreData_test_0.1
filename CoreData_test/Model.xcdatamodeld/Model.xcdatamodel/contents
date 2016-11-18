@@ -5,7 +5,7 @@
         <relationship name="students" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Students" inverseName="classNumber" inverseEntity="Students" syncable="YES"/>
     </entity>
     <entity name="Students" representedClassName="Students" syncable="YES">
-        <attribute name="age" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="age" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="classNumber" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClassNumber" inverseName="students" inverseEntity="ClassNumber" syncable="YES"/>
     </entity>
