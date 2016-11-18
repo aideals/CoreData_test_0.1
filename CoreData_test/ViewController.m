@@ -125,7 +125,7 @@
 - (IBAction)deleteEntity:(id)sender
 {
     NSFetchRequest *request = [[NSFetchRequest alloc] initWithEntityName:@"Students"];
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name = %@",@"Liu peng"];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name = %@",@"Liu Peng"];
     request.predicate = predicate;
     
     NSError *error = nil;
